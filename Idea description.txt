@@ -1,0 +1,53 @@
+General Inertial Navigation Systems.. well in principle.. its essentially.. since last known position/velocity.. it integrates translational acceleration ("(double integration of a (acceleration) wrt time (t))" error accumulated twice over time (Once for velocity change to get velocity) and then once again for displacement (delta s) but that leads to an error that scales in O(t^2) quadratic time due to the double integration due to any imprecision in acceleration.. due to the double integration which is fine as IMU(Inertial Measurement Units) are precise enough for the real life applications they are actually used for anyway... that is in missiles/ rockets. or ships/planes for the error rates to not compound anyway
+
+But the default sensors in phones are not as precise as dedicated IMUs anyway.. also IMUs are well both more expensive and also not as readily available.. the solution is to calculate the velocity vector using an AI model over a period of preceding time and velocities.. that is a temporal AI model.. the type specifically we will use here is a Temporal Convolutional Network(TCN) which is essentially a type of time series Convolutional Neural Network (CNN)..
+
+This way the network predicts velocity v directly and then "delta s=integration of v wrt time" and the errors come from imprecision in sensors (&other factor which may be random) but the overall error stays linear time O(t)....
+
+Here despite its popularity... we don't use Transformer as though they are versatile and its possible.. this app is to be deployed on phones which most are not higher end supporting a so a TCN model would be trained on PyTorch on the dataset provided in google Colab and then for inference ability on mobile phones libraries like ExecuTorch((this is a successor of PyTorch mobile)for pytorch trained models running on android devices) will be used...
+
+a last known position, orientation and velocity vectors will be taken.. since the GNSS(GPS, NaVIC, GLONASS etc..) outage... 
+
+and then the output of this inference running locally on the mobile device.. will be used to get the velocity (& thus displacement to know the position)...
+
+Further constraints to improve accuracy even further:-
+
+a) If the person is not deciding to offroad (there will a toggle in the UI for that).. and the map data is loaded (open source software OpenStreetMap will be used for the road data...) then we can project the terrain position to the nearest lane on the road in the constraint of the position when displaying) (understanding that the car will be not outside the road when travel)(ofc toggle can be switched off)
+
+b) Furthermore is the offline map of that area where one plans to expect GNSS enroute outage and generally drives (eg.. a mountainous routes in himalyas)..is downloaded..
+
+then we have terrain info. further constraints will be put where:-
+
+i) the position vector calculated will be projected to the terrain (eliminating the errors normal to the terrain) (as the vehicle will not fly above or below the terrain).
+ii) another constraint that can be put is to also project the velocity vector to the terrain (if the service has data of the terrain of the location local plane (as there cannot be a average(over long time) net normal velocity (note not talking about jerks)(note:- here the normal is normal to terrain not vertically upward.. and the terrain can be slanted at the point)... (note sometimes the data is unreliable (as in construction done but not updated on the service OpenStreetMap due to recent constructions and all.. so there will be a toggle in UI to not apply this constraint)
+
+c) We have the velocity and also the calculated orientation (from digital gyroscopes sensors in mobile device) and we know that the velocity vector at the instance of any vehicle (if there is no sideways skidding) will always be along the direction of the vehicle heading itself.. (eg. car) and cannot be sideways (note in this constraint this point is taken as normal to the the rear axis axle midpoint)(or the rear wheel if a 2 wheeler) (note the mobile device need not necessarily be mounted there.. there just needs to be a calibration done for the app to know that point.. respective to the mounted point).. (device can be mounted to the dashboard)
+
+eliminates error of velocity (measured) vector lateral(sideways to the real velocity vector)
+
+
+d) filtering the input signal to filter out the normal to terrain impulse of jerks and e) vibrations from the (which do not have overall impact but can respectively saturate the sensors and bring in needles noise to useful data (vibrations don't affect net velocity)
+
+Specially Usefulness to ISRO and Indian Armed forces:- Indian armed forces have a precedent where USA refused provision of GPS to Indian armed forces in Kargil war.. after that India learned to be self reliant in navigation... and launched NaVIC which as of now is inoperable due to no. of operational satellites (for navigation) lesser than the minimum possible.. forcing us to rely back on international partners
+
+This Application we are developing will give our nation further redundancy for navigation without any GNSS system (in terrain blocking case or hypothetical denial of service like what happened during Kargil war) (even if no IMU available) because everyone has mobiles
+
+
+UI development:- designing of the application (after the core working code is proven) will be done in Figma.. and then a android app will ne made in Android studio...
+
+Risks:-  Might reduce resource barrier for smuggling groups helping them more ease in tunnel network navigation, but advantage to society greater than these risks
+
+Benifits-
+• Better Navigation in Urban Shadow,
+mountain valleys and Tunnels
+• Redundancy to navigation to Securtity forces navigation on
+momentary GNSS/Navic blackout especially considering
+current lack of sufficient Navic satellites for covrage (might
+create blackout of Navic GNSS on times)... if refusal of
+international GNSS(like GPS to indian forces again like
+Kargil(Operation Vijay)
+• Help To Normal Drivers, in Navigation in Tunnels, valleys or
+GNSS blackout Areas
+• Helpful in cheaper autonomous navigation delivery bots to
+navigate apartment complex parking lots/lobbies where
+GNSS might be blocked….

@@ -1,0 +1,15 @@
+In this idea proposal.. For 'AI-ML based Intelligent Dead Reckoning system for seamless navigation' instead of double integration of acceleration used in traditional INS algorithms used in precise dedicated IMUs where there is a dedicated INS for displacement..
+
+TCN(Temporal Convolutional Network) (a type of time series CNN) is used to directly predict velocity on a sliding time window of sensors inputs in phone so that error divergence over time stays in linear O(r) (& not O(t^2) according to traditional algorithms) helping the error stay withing 10% of the distance travelled
+
+additionally there are additional constraints which can be used to further improve the position
+- (if offline map and terrain downloaded)
+- projecting the position to the terrain.. normally and velocity vector along the terrain tangent plane
+- projecting the position in the terrain to nearest point in road (if not off-roading) (toggle there)
+- Filtering input signal of normal to ground jerks (to prevent corruption of input data from fraphs of sensor saturation on impulses)
+- vibration and noise filtering of input signal (as vibration have no effect on net velocity)
+- constraint that net lateral (to orientation of the vehicle(that will be along heading vector) velocity of points along(& normally above to) real axle (in 4 wheeler) and rear wheel (in 2 wheeler is 0) is 0 (as vehicles doesn't usually skid or move sideways...) (eliminates predicted velocity error lateral to true velocity)
+
+gives redundancy in navigation on outage (terrain obstruction or denial of service(especially relevant on current geopolitical dilemma of non functionality of NaVIC) of GNSS when there is no dedicated IMU containing INSs present
+
+Model (TCN) will be trained on PyTorch on Google Colab and inference Neural Net will run on smartphone (ExecuTorch library) and then an overall UI in form of android application... (UI design on Figma, app development in android studio)
